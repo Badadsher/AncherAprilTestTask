@@ -158,38 +158,27 @@ public class PlayerController : MonoBehaviour
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.z = 0;
         
-        Vector2 lookDirection = Vector2.right;
+        Vector2 pullVector = initialMousePosition - mousePos;
         
-        Vector2 toMouse = (mousePos - transform.position).normalized;
-        float mouseSide = Vector2.Dot(toMouse, lookDirection);
+        currentShootDirection = Vector2.right;
+
+        float pullDistance = Mathf.Clamp(pullVector.magnitude, 0, maxPullDistance);
+        currentPullDistanceNormalized = pullDistance / maxPullDistance;
         
-        if (mouseSide < 0)
-        {
-            currentPullDistanceNormalized = 0.1f; 
-            currentShootDirection = lookDirection; 
-        }
-        else
-        {
-           
-            float distance = Vector2.Distance(mousePos, transform.position);
-            currentPullDistanceNormalized = Mathf.Clamp01(distance / maxPullDistance);
-            currentShootDirection = toMouse; 
-        }
-        
-        currentShootDirection.y = Mathf.Clamp(currentShootDirection.y + 0.3f, minVerticalAngle, maxVerticalAngle);
+        currentShootDirection.y = Mathf.Clamp(pullVector.y * verticalAimSensitivity, minVerticalAngle, maxVerticalAngle);
         currentShootDirection.Normalize();
-    
+        
         currentShootPower = Mathf.Lerp(minPower, maxPower, Mathf.Pow(currentPullDistanceNormalized, powerCurve));
-    
+        
         Vector2 gravity = Physics2D.gravity * gravityScale;
-    
+
         for (int i = 0; i < dotsCount; i++)
         {
             float t = i / (float)(dotsCount - 1) * maxTrajectoryTime;
-            Vector2 point = (Vector2)firePoint.position + 
-                            currentShootDirection * currentShootPower * t + 
+            Vector2 point = (Vector2)firePoint.position +
+                            currentShootDirection * currentShootPower * t +
                             0.5f * gravity * t * t;
-        
+
             if (i < dots.Count)
             {
                 dots[i].SetActive(true);
