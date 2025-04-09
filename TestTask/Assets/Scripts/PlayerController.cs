@@ -122,8 +122,7 @@ public class PlayerController : MonoBehaviour
                 PlayAnimation(shootAnimation, false);
                 ShootArrow();
                 HideDots();
-                
-                Invoke("ReturnToIdle", 0.5f);
+                skeletonAnimation.AnimationState.SetEmptyAnimation(0, 0);
             }
             isMouseDown = false;
         }
@@ -133,14 +132,7 @@ public class PlayerController : MonoBehaviour
     {
         skeletonAnimation.AnimationState.SetAnimation(0, animationName, loop);
     }
-
-    void ReturnToIdle()
-    {
-        if (!isAiming) 
-        {
-            PlayAnimation(idleAnimation, true);
-        }
-    }
+    
 
     private void UpdateRotation()
     {
@@ -226,7 +218,10 @@ public class PlayerController : MonoBehaviour
     private IEnumerator EnableArrowGravity(Rigidbody2D rb, float delay)
     {
         yield return new WaitForSeconds(delay);
-        rb.gravityScale = gravityScale;
+        if (rb != null)
+        {
+            rb.gravityScale = gravityScale;
+        }
     }
 
    
